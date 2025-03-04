@@ -45,10 +45,30 @@ arm-muscle driven bicycle-rider model that has XM operations for evaluating the
 constraints and its Jacobian.
 
 \section*{METHODS}
-Explain the formulation of the NLP problem from a symbolic optimal control
-description.
+%
+The equations of motion for musculoskeletal system are differnetial algebraic
+equations.
 
 \section*{RESULTS AND DISCUSSION}
+%
+To demonstrate the qualities of our methods we have developed a bicycle-rider
+model that includes the non-linear Carvallo-Whipple of the vehicle and with
+four additional rigid bodies representing the upper and lower arm body
+segements. The arms are added in such a way that no additonal degrees of
+freedom are added to the vehicle model due to the closed loop kinematic
+constraints. We include four lumped Hill-Type muscle models reprsenting the
+extensor and flexor groups for the elbow. This results in a set of differential
+algebraic equations with XM floating point operations in the symbolic equations
+of motion. The Jacobian of the equations of motion with respect to the states
+an muscle excitation inputs has XXM operations. After compiler
+preoptimizatoins, this reduces to XK and XM, respectively. Once the constraints
+and Jacobian NLP numerical evalution functions are rewritten the evaluation
+time depends on the number of nodes. For X nodes we time the evaluation of
+these two functions with and without parallelization using from openmp. The
+timings are showin Table~\ref{TODO}.
+
+We then solve the optimal control problem defined by the objective to follow a
+lane change path with the front wheel.
 
 \section*{CONCLUSIONS}
 
