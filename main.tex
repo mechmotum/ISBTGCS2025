@@ -1,12 +1,13 @@
 \documentclass[11pt,twocolumn]{article}
 
 \usepackage[margin=0.5in]{geometry}
+\usepackage{amsmath}
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 
 \title{Fast Symbolic Methods for Muscle-Driven\\Optimal Control and Parameter
 Identification}
-\author{Jason K. Moore}
+\author{Jason K. Moore \and Samuel G. Brockie}
 \date{\today}
 
 \begin{document}
@@ -15,39 +16,52 @@ Identification}
 %
 Direct collocation has grown rapidly for solving biomechanical optimal control
 problems. For example, Opensim now includes Moco which allows users to find
-solutions with relatively low user overhead. An advantage of direct collocation
-compared to shooting is the speed at which solutions can be found.  The
-computation costs can be an orders of magnitude faster with direct collocation.
-But direct collocation methods are ultimately local minimzers and computational
-cost can increase when searching for global minima.
+solutions with relatively low user overhead. One advantage of direct
+collocation when compared to shooting optimization methods is the speed at
+which solutions can be found. The computation costs can be an orders of
+magnitude faster with direct collocation. But direct collocation methods are
+rely on local minimzers and computational cost can still increase when
+searching for global minima.
 
 Direct collocation methods require evaluating the system's equations of motion,
 its Jacobian, and possibly its Hessian thousands to millions of times for one
-solution, but this evaluation is eaisly parallizable over mutliple compute
+solution, but this evaluation is easily parallelizable over mutliple compute
 cores and can leverage the massive sparsity of the equations. This cannot be,
 in general, done in shooting methods that require sequential integration
 stepping. Maximizing the compute and memory performance of the functions that
-evaluate the constraints and their derivatives allows the subseqent optimization
-algorithms to solve very large problems, both in simulation duration and number
-of degrees of freedom.
+evaluate the constraints and their derivatives allows the subseqent
+optimization algorithms to solve very large problems, both in simulation
+duration and number of degrees of freedom.
 
-Early, dynamics simulation software used computer aided algebra techniques,
+Early dynamics simulation software used computer-aided algebra techniques,
 which allowed for analytical derivatives when forming equations of motion, but
 this has faded from popularity with growth of numerical physics engines. Code
 generated from computer aided algebra can be optimized for evaluation
 performance using compiler pre-optimizations and built-in compiler
-optimizations that are unlikley available to apply to numeric physics engines.
+optimizations that are harder, or impossible, to apply to numeric physics
+engines.
 
 We will demonstrate software that leverages symbolic formulations to generate
 computationally efficient parallelized functions to evaluate the non-linear
 programming problem's constraints and its derivatives. We will show an
-arm-muscle driven bicycle-rider model that has XM operations for evaluating the
-constraints and its Jacobian.
+arm-muscle driven bicycle-rider model that has XXX million floating point
+operations for evaluating the constraints and its Jacobian.
 
 \section*{METHODS}
 %
-The equations of motion for musculoskeletal system are differnetial algebraic
-equations.
+The non-linear equations of motion for musculoskeletal system can be described
+by differential algebraic equations, in general. These equations take this
+form:
+%
+\begin{align}
+  \mathbf{f}(\dot{\mathbf{y}}(t), \mathbf{y}(t), \mathbf{r}(t), \mathbf{p}) =
+  \mathbf{0} \in \mathrm{R}^n
+\end{align}
+%
+These equations can contain elements such as musculotendon force velcoity
+relationships, kinematic loops, friction, collision, etc. We write these
+equations as analytically differentiable The Jacobian and
+Hessian can be formed
 
 \section*{RESULTS AND DISCUSSION}
 %
