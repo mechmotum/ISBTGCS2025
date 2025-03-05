@@ -7,7 +7,7 @@
 
 \title{Fast Symbolic Methods for Muscle-Driven\\Optimal Control and Parameter
 Identification}
-\author{Jason K. Moore \and Samuel G. Brockie \and Timótheüs J. Stienstra}
+\author{Jason K. Moore \and Samuel G. Brockie \and Timótheüs J. Stienstra \and Antonie van den Bogert}
 \date{\today}
 
 \begin{document}
@@ -15,12 +15,12 @@ Identification}
 \section*{INTRODUCTION}
 %
 Direct collocation has grown rapidly for solving biomechanical optimal control
-problems. For example, Opensim now includes Moco which allows users to find
+problems. For example, OpenSim now includes Moco which allows users to find
 solutions with relatively low user overhead. One advantage of direct
 collocation when compared to shooting optimization methods is the speed at
-which solutions can be found. The computation costs can be an orders of
-magnitude faster with direct collocation. But direct collocation methods are
-rely on local minimzers and computational cost can still increase when
+which solutions can be found. The computation costs can be orders of
+magnitude faster with direct collocation. But direct collocation methods
+rely on local minimization techiniques and computational cost can still increase when
 searching for global minima.
 
 Direct collocation methods require evaluating the system's equations of motion,
@@ -58,10 +58,10 @@ form:
   \mathbf{0} \in \mathrm{R}^n
 \end{align}
 %
-These equations can contain elements such as musculotendon force velcoity
+These equations can contain elements such as musculotendon force velocity
 relationships, kinematic loops, friction, collision, etc. We write these
-equations as analytically differentiable The Jacobian and
-Hessian can be formed
+equations as analytically differentiable functions. The Jacobian and
+Hessian can be formed by recursive symbolic differentiation. To map these to non-linear programming constraints we discertize the equations with backward Euler deritatives and code generate functions
 
 \section*{RESULTS AND DISCUSSION}
 %
