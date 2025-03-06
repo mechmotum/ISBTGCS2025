@@ -88,21 +88,15 @@ computational cost, so this is only done in Python, also with a symbolic to
 numeric conversion.
 %
 \begin{table*}[t]
-    \centering
-    \tiny
-    \begin{tabular}{lllllllllll}
-    Symbolic&Symbolic&OCP&Constraint&Jacobian
-    &Jacobian&NLP&Objective&
-    Gradient&Constraint&Jacobian
-         \\
-    EOM&OCP&Solve&Compilation&
-    Compilation&Differentiation&iterations&evaluations&
-    evaluations&evaluations&evaluations
-         \\
-         14.9&169.8&73.0&58.3&66.7&35.4&286&1098&286&1098&292
-    \end{tabular}
-    \caption{Caption}
-    \label{tab:my_label}
+  \centering
+  \caption{Caption}
+  \tiny
+  \begin{tabular}{lllllllllll}
+    Symbolic & Symbolic & OCP & Constraint & Jacobian  & Jacobian & NLP & Objective &  Gradient & Constraint & Jacobian \\
+    EOM & OCP & Solve & Compilation &  Compilation & Differentiation & iterations & evaluations & evaluations & evaluations & evaluations \\
+    14.9 & 169.8 & 73.0 & 58.3 & 66.7 & 35.4 & 286 & 1098 & 286 & 1098 & 292
+  \end{tabular}
+  \label{tab:my_label}
 \end{table*}
 
 \section*{RESULTS AND DISCUSSION}
