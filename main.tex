@@ -65,7 +65,13 @@ be formed by recursive symbolic differentiation. To map these to non-linear
 programming constraints we discretize the equations with backward Euler
 differentiation over a constant time step and code generate functions in C that
 evaluate the constraints and Jacobian over all nodes, while exploiting the high
-sparsity of the Jacobian.
+sparsity of the Jacobian~\cite{Moore2018}. The symbolic Jacobian is calculated
+in forward mode applying the chain rule through all common sub-expressions which
+handles large equations of motion. This results in cacheable computationally
+efficient numerical functions that evaluate the non-linear programming problem
+constraints and its Jacobian. Evaluation of the objective is generally a low
+computational cost, so this is only done in Python, also with a symbolic to
+numeric conversion.
 
 \section*{RESULTS AND DISCUSSION}
 %
@@ -89,5 +95,8 @@ We then solve the optimal control problem defined by the objective to follow a
 lane change path with the front wheel.
 
 \section*{CONCLUSIONS}
+
+\bibliography{references}
+\bibliographystyle{plain}
 
 \end{document}
