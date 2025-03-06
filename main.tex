@@ -1,16 +1,31 @@
 \documentclass[11pt,twocolumn]{article}
 
-\usepackage[margin=0.5in]{geometry}
+\usepackage[includehead,margin=0.5in]{geometry}
+\usepackage{fancyhdr}
 \usepackage{amsmath}
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 
-\title{Fast Symbolic Methods for Muscle-Driven\\Optimal Control and Parameter
-Identification}
-\author{Jason K. Moore \and Samuel G. Brockie \and Timótheüs J. Stienstra \and Antonie van den Bogert}
-\date{\today}
+\title{\textbf{
+  FAST SYMBOLIC METHODS FOR MUSCLE-DRIVEN\\
+  OPTIMAL CONTROL AND PARAMETER IDENTIFICATION
+}}
+\author{
+Jason K. Moore \and
+Samuel G. Brockie \and
+Timótheüs J. Stienstra \and
+Antonie van den Bogert \\
+Department of BioMechanical Engineering, Delft University of Technology, The Netherlands\\
+Email: j.k.moore@tudelft.nl}
+\date{}
+
+\renewcommand{\thispagestyle}[1]{} % do nothing
 
 \begin{document}
+\pagestyle{fancy}
+\lhead{}
+\rhead{XX International Symposium on Computer Simulation in Biomechanics\\
+July 23rd – 25th 2025, Uppsala} %empty
 \maketitle
 \section*{INTRODUCTION}
 %
@@ -71,27 +86,46 @@ efficient numerical functions that evaluate the non-linear programming problem
 constraints and its Jacobian. Evaluation of the objective is generally a low
 computational cost, so this is only done in Python, also with a symbolic to
 numeric conversion.
+%
+\begin{table*}[t]
+    \centering
+    \tiny
+    \begin{tabular}{lllllllllll}
+    Symbolic&Symbolic&OCP&Constraint&Jacobian
+    &Jacobian&NLP&Objective&
+    Gradient&Constraint&Jacobian
+         \\
+    EOM&OCP&Solve&Compilation&
+    Compilation&Differentiation&iterations&evaluations&
+    evaluations&evaluations&evaluations
+         \\
+         14.9&169.8&73.0&58.3&66.7&35.4&286&1098&286&1098&292
+    \end{tabular}
+    \caption{Caption}
+    \label{tab:my_label}
+\end{table*}
 
 \section*{RESULTS AND DISCUSSION}
 %
 To demonstrate the qualities of our methods we have developed a bicycle-rider
 model that includes the non-linear Carvallo-Whipple of the vehicle and with four
-additional rigid bodies representing the upper and lower arm body segments. The
-arms are added in such a way that no additional degrees of freedom are added to
-the vehicle model due to the closed-loop kinematic constraints. We include four
-lumped Hill-Type muscle models reprsenting the extensor and flexor groups for
-the elbow. This results in a set of differential algebraic equations with XM
-floating point operations in the symbolic equations of motion. The Jacobian of
-the equations of motion with respect to the states an muscle excitation inputs
-has XXM operations. After compiler preoptimizations, this reduces to XK and XM,
-respectively. Once the constraints and Jacobian NLP numerical evaluation
-functions are rewritten the evaluation time depends on the number of nodes. For
-X nodes we time the evaluation of these two functions with and without
-parallelization using from openmp. The timings are shown in Table~\ref{TODO}.
+additional rigid bodies representing the upper and lower arm body
+segments~\cite{Stienstra2023a}. The arms are added in such a way that no
+additional degrees of freedom are added to the vehicle model due to the
+closed-loop kinematic constraints. We include four lumped Hill-Type muscle
+models reprsenting the extensor and flexor groups for the elbow. This results in
+a set of differential algebraic equations with 2.8M floating point operations in
+the symbolic equations of motion. The Jacobian of the equations of motion with
+respect to the states an muscle excitation inputs has XXM operations. After
+compiler preoptimizations, this reduces to XK and XM, respectively. Once the
+constraints and Jacobian NLP numerical evaluation functions are rewritten the
+evaluation time depends on the number of nodes. For X nodes we time the
+evaluation of these two functions with and without parallelization using from
+OpenMP. The timings are shown in Table~\ref{TODO}.
 
 We then solve the optimal control problem defined by the objective to follow a
 lane change path with the front wheel.
-
+test
 \section*{CONCLUSIONS}
 
 \bibliography{references}
