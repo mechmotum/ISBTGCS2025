@@ -20,16 +20,16 @@ solutions with relatively low user overhead. One advantage of direct
 collocation when compared to shooting optimization methods is the speed at
 which solutions can be found. The computation costs can be orders of
 magnitude faster with direct collocation. But direct collocation methods
-rely on local minimization techiniques and computational cost can still increase when
+rely on local minimization techniques and computational cost can still increase when
 searching for global minima.
 
 Direct collocation methods require evaluating the system's equations of motion,
 its Jacobian, and possibly its Hessian thousands to millions of times for one
-solution, but this evaluation is easily parallelizable over mutliple compute
+solution, but this evaluation is easily parallelizable over multiple compute
 cores and can leverage the massive sparsity of the equations. This cannot be,
 in general, done in shooting methods that require sequential integration
 stepping. Maximizing the compute and memory performance of the functions that
-evaluate the constraints and their derivatives allows the subseqent
+evaluate the constraints and their derivatives allows the subsequent
 optimization algorithms to solve very large problems, both in simulation
 duration and number of degrees of freedom.
 
@@ -58,28 +58,32 @@ form:
   \mathbf{0} \in \mathrm{R}^n
 \end{align}
 %
-These equations can contain elements such as musculotendon force velocity
+These equations can contain elements such as musculotendon force-velocity
 relationships, kinematic loops, friction, collision, etc. We write these
-equations as analytically differentiable functions. The Jacobian and
-Hessian can be formed by recursive symbolic differentiation. To map these to non-linear programming constraints we discertize the equations with backward Euler deritatives and code generate functions
+equations as analytically differentiable functions. The Jacobian and Hessian can
+be formed by recursive symbolic differentiation. To map these to non-linear
+programming constraints we discretize the equations with backward Euler
+differentiation over a constant time step and code generate functions in C that
+evaluate the constraints and Jacobian over all nodes, while exploiting the high
+sparsity of the Jacobian.
 
 \section*{RESULTS AND DISCUSSION}
 %
 To demonstrate the qualities of our methods we have developed a bicycle-rider
 model that includes the non-linear Carvallo-Whipple of the vehicle and with
 four additional rigid bodies representing the upper and lower arm body
-segements. The arms are added in such a way that no additonal degrees of
-freedom are added to the vehicle model due to the closed loop kinematic
+segments. The arms are added in such a way that no additional degrees of
+freedom are added to the vehicle model due to the closed-loop kinematic
 constraints. We include four lumped Hill-Type muscle models reprsenting the
 extensor and flexor groups for the elbow. This results in a set of differential
 algebraic equations with XM floating point operations in the symbolic equations
 of motion. The Jacobian of the equations of motion with respect to the states
 an muscle excitation inputs has XXM operations. After compiler
-preoptimizatoins, this reduces to XK and XM, respectively. Once the constraints
-and Jacobian NLP numerical evalution functions are rewritten the evaluation
+preoptimizations, this reduces to XK and XM, respectively. Once the constraints
+and Jacobian NLP numerical evaluation functions are rewritten the evaluation
 time depends on the number of nodes. For X nodes we time the evaluation of
 these two functions with and without parallelization using from openmp. The
-timings are showin Table~\ref{TODO}.
+timings are shown in Table~\ref{TODO}.
 
 We then solve the optimal control problem defined by the objective to follow a
 lane change path with the front wheel.
