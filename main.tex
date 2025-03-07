@@ -27,7 +27,6 @@ Antonie van den Bogert\textsuperscript{3}\\
 Email: j.k.moore@tudelft.nl}
 \date{}
 
-
 \renewcommand{\thispagestyle}[1]{} % do nothing
 \renewcommand{\headrulewidth}{0pt}
 
@@ -35,18 +34,19 @@ Email: j.k.moore@tudelft.nl}
 \pagestyle{fancy}
 \lhead{}
 \rhead{\textbf{XX International Symposium on Computer Simulation in Biomechanics\\
-July 23rd – 25th 2025, Uppsala}} %empty
+July 23rd – 25th 2025, Uppsala}}
 \maketitle
 \section*{INTRODUCTION}
 %
-Direct collocation has grown rapidly for solving biomechanical optimal control
+Direct collocation is now widely used for solving biomechanical optimal control
 problems. For example, OpenSim now includes Moco~\cite{Dembia2019} which allows
-users to find solutions with relatively low user overhead but that uses slower finite differences for gradients. One advantage of
-direct collocation when compared to shooting optimization methods is the speed
-at which solutions can be found. The computation costs can be orders of
-magnitude faster with direct collocation. But direct collocation methods rely on
-local minimization techniques and computational cost can still increase when
-searching for global minima.
+users to find solutions with relatively low user overhead but that uses slower
+finite differences for gradients. One advantage of direct collocation when
+compared to shooting optimization methods is the speed at which solutions can be
+found. The computation costs can be orders of magnitude faster with direct
+collocation. But direct collocation methods rely on local minimization
+techniques and computational cost can still increase when searching for global
+minima.
 
 Direct collocation methods require evaluating the system's equations of motion,
 its Jacobian, and possibly its Hessian thousands to millions of times for one
@@ -146,11 +146,11 @@ problem to an acceptable level in 73 seconds.
 \section*{CONCLUSIONS}
 %
 Our methods maximize the performance of evaluating the optimal control
-constraint and Jacobian numerical functions. The peformance of these functions
+constraint and Jacobian numerical functions. The performance of these functions
 scale linearly with the number of collocation nodes and can be sped up
-multibplicatively by the number of compute cores available. Whenever IPOPT needs
-to evaluate these functions thousands or millions of times the overall solution
-can be minimized.
+approximately multiplicatively by the number of compute cores available.
+Whenever IPOPT needs to evaluate these functions thousands or millions of times
+the overall solution can be minimized.
 
 \bibliography{references}
 \bibliographystyle{plain}
