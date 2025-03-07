@@ -3,6 +3,7 @@
 \usepackage[includehead,margin=0.5in]{geometry}
 \usepackage{fancyhdr}
 \usepackage{amsmath}
+\usepackage{graphicx}
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 
@@ -11,13 +12,16 @@
   OPTIMAL CONTROL AND PARAMETER IDENTIFICATION
 }}
 \author{
-Jason K. Moore \and
-Samuel G. Brockie \and
-Timótheüs J. Stienstra \and
-Antonie van den Bogert \\
-Department of BioMechanical Engineering, Delft University of Technology, The Netherlands\\
+Jason K. Moore\textsuperscript{1}\and
+Samuel G. Brockie\textsuperscript{2}\and
+Timótheüs J. Stienstra\textsuperscript{1}\and
+Antonie van den Bogert\textsuperscript{3}\\
+\textsuperscript{1}Department of BioMechanical Engineering, Delft University of Technology, The Netherlands\\
+Startup, United Kingdom\\
+\textsuperscript{3}Mechanical Engineering, Cleveland State University, USA\\
 Email: j.k.moore@tudelft.nl}
 \date{}
+
 
 \renewcommand{\thispagestyle}[1]{} % do nothing
 
@@ -64,8 +68,9 @@ operations for evaluating the constraints and its Jacobian.
 \section*{METHODS}
 %
 The non-linear equations of motion for musculoskeletal system can be described
-by differential algebraic equations, in general. These equations take this
-form:
+by differential algebraic equations that are a function of the state
+\(\mathbf{y}\), controls \(\mathbf{r}\), and constant parameters
+\(\mathbf{p}\), in general. These equations take this form:
 %
 \begin{align}
   \mathbf{f}(\dot{\mathbf{y}}(t), \mathbf{y}(t), \mathbf{r}(t), \mathbf{p}) =
@@ -89,14 +94,15 @@ numeric conversion.
 %
 \begin{table*}[t]
   \centering
-  \caption{Caption}
-  \tiny
+  \caption{Mean performance values for the arm-muscle driven bicycle model lane
+  change maneuver on a Macbook Pro XXX.}
+  \scriptsize
   \begin{tabular}{lllllllllll}
     Symbolic & Symbolic & OCP & Constraint & Jacobian  & Jacobian & NLP & Objective &  Gradient & Constraint & Jacobian \\
     EOM & OCP & Solve & Compilation &  Compilation & Differentiation & iterations & evaluations & evaluations & evaluations & evaluations \\
     14.9 & 169.8 & 73.0 & 58.3 & 66.7 & 35.4 & 286 & 1098 & 286 & 1098 & 292
   \end{tabular}
-  \label{tab:my_label}
+  \label{tab:performance}
 \end{table*}
 
 \section*{RESULTS AND DISCUSSION}
@@ -106,20 +112,31 @@ model that includes the non-linear Carvallo-Whipple of the vehicle and with four
 additional rigid bodies representing the upper and lower arm body
 segments~\cite{Stienstra2023a}. The arms are added in such a way that no
 additional degrees of freedom are added to the vehicle model due to the
-closed-loop kinematic constraints. We include four lumped Hill-Type muscle
-models reprsenting the extensor and flexor groups for the elbow. This results in
-a set of differential algebraic equations with 2.8M floating point operations in
-the symbolic equations of motion. The Jacobian of the equations of motion with
-respect to the states an muscle excitation inputs has XXM operations. After
-compiler preoptimizations, this reduces to XK and XM, respectively. Once the
-constraints and Jacobian NLP numerical evaluation functions are rewritten the
-evaluation time depends on the number of nodes. For X nodes we time the
-evaluation of these two functions with and without parallelization using from
-OpenMP. The timings are shown in Table~\ref{TODO}.
+closed-loop kinematic constraints. The model has seven holonomic constraints and
+four nonholonomic constraints . We include four lumped Hill-Type muscle models
+representing the extensor and flexor groups for the elbow. This results in a set
+of differential algebraic equations with 2.8M floating point operations in the
+symbolic equations of motion. After compiler pre-optimizations, this reduces to
+XK and XM, for the constraints and Jacobian respectively. Once the constraints
+and Jacobian NLP numerical evaluation functions are rewritten the evaluation
+time depends on the number of nodes. For X nodes we time the evaluation of these
+two functions with and without parallelization using from OpenMP. We then solve
+the optimal control problem defined by the objective to follow a lane change
+path with the front wheel.
 
-We then solve the optimal control problem defined by the objective to follow a
-lane change path with the front wheel.
-test
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/arm-muscle-bicycle-excitation.png}
+    \caption{Triceps and biceps muscle group excitations for the left and right arms to execute a lane change maneuver.}
+    \label{fig:enter-label}
+\end{figure}
+
+The timings are shown in Table~\ref{tab:performance}. Building the model and
+forming the optimal control problem takes 185 seconds with most time spent
+compiling the generated functions with Clang. This can be cached to disk and
+need not be built again unless the dynamics model changes. IPOPT solves the
+problem to an acceptable level in 73 seconds.
+
 \section*{CONCLUSIONS}
 
 \bibliography{references}
