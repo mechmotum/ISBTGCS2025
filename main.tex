@@ -4,8 +4,13 @@
 \usepackage{fancyhdr}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{parskip}  % disable paragraph indent
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
+
+\makeatletter
+\renewcommand{\fnum@figure}{Fig \thefigure}
+\makeatother
 
 \title{\textbf{
   FAST SYMBOLIC METHODS FOR MUSCLE-DRIVEN\\
@@ -29,8 +34,8 @@ Email: j.k.moore@tudelft.nl}
 \begin{document}
 \pagestyle{fancy}
 \lhead{}
-\rhead{XX International Symposium on Computer Simulation in Biomechanics\\
-July 23rd – 25th 2025, Uppsala} %empty
+\rhead{\textbf{XX International Symposium on Computer Simulation in Biomechanics\\
+July 23rd – 25th 2025, Uppsala}} %empty
 \maketitle
 \section*{INTRODUCTION}
 %
@@ -61,10 +66,23 @@ performance using compiler pre-optimizations and built-in compiler optimizations
 that are harder, or impossible, to apply to numeric physics engines.
 
 We will demonstrate software that leverages symbolic formulations to generate
-computationally efficient parallelized functions to evaluate the non-linear
-programming problem's constraints and its derivatives. We will show an
-arm-muscle driven bicycle-rider model that has XXX million floating point
+computationally efficient parallelized functions based on implicit dynamics to evaluate the non-linear
+programming problem's constraints and its derivatives based on the ideas of \cite{vandenBogert2011a}. We will show an
+arm-muscle driven bicycle-rider model that has seven algebraic constraints and XXX million floating point
 operations for evaluating the constraints and its Jacobian.
+%
+\begin{table*}[t]
+  \centering
+  \caption{Mean performance values for the arm-muscle driven bicycle model lane
+  change maneuver on a Macbook Pro XXX.}
+  \scriptsize
+  \begin{tabular}{lllllllllll}
+    Symbolic & Symbolic & OCP & Constraint & Jacobian  & Jacobian & NLP & Objective &  Gradient & Constraint & Jacobian \\
+    EOM & OCP & Solve & Compilation &  Compilation & Differentiation & iterations & evaluations & evaluations & evaluations & evaluations \\
+    14.9 & 169.8 & 73.0 & 58.3 & 66.7 & 35.4 & 286 & 1098 & 286 & 1098 & 292
+  \end{tabular}
+  \label{tab:performance}
+\end{table*}
 
 \section*{METHODS}
 %
@@ -92,19 +110,6 @@ efficient numerical functions that evaluate the non-linear programming problem
 constraints and its Jacobian. Evaluation of the objective is generally a low
 computational cost, so this is only done in Python, also with a symbolic to
 numeric conversion.
-%
-\begin{table*}[t]
-  \centering
-  \caption{Mean performance values for the arm-muscle driven bicycle model lane
-  change maneuver on a Macbook Pro XXX.}
-  \scriptsize
-  \begin{tabular}{lllllllllll}
-    Symbolic & Symbolic & OCP & Constraint & Jacobian  & Jacobian & NLP & Objective &  Gradient & Constraint & Jacobian \\
-    EOM & OCP & Solve & Compilation &  Compilation & Differentiation & iterations & evaluations & evaluations & evaluations & evaluations \\
-    14.9 & 169.8 & 73.0 & 58.3 & 66.7 & 35.4 & 286 & 1098 & 286 & 1098 & 292
-  \end{tabular}
-  \label{tab:performance}
-\end{table*}
 
 \section*{RESULTS AND DISCUSSION}
 %
@@ -139,6 +144,13 @@ need not be built again unless the dynamics model changes. IPOPT solves the
 problem to an acceptable level in 73 seconds.
 
 \section*{CONCLUSIONS}
+%
+Our methods maximize the performance of evaluating the optimal control
+constraint and Jacobian numerical functions. The peformance of these functions
+scale linearly with the number of collocation nodes and can be sped up
+multibplicatively by the number of compute cores available. Whenever IPOPT needs
+to evaluate these functions thousands or millions of times the overall solution
+can be minimized.
 
 \bibliography{references}
 \bibliographystyle{plain}
