@@ -22,7 +22,7 @@ Samuel G. Brockie\textsuperscript{2}\and
 Timótheüs J. Stienstra\textsuperscript{1}\and
 Antonie van den Bogert\textsuperscript{3}\\
 \textsuperscript{1}Department of BioMechanical Engineering, Delft University of Technology, The Netherlands\\
-\textsuperscript{2}Startup, United Kingdom\\
+\textsuperscript{2}Department of Engineering, University of Cambridge, United Kingdom\\
 \textsuperscript{3}Mechanical Engineering, Cleveland State University, USA\\
 Email: j.k.moore@tudelft.nl}
 \date{}
@@ -40,41 +40,44 @@ July 23rd – 25th 2025, Uppsala}}
 %
 Direct collocation is now widely used for solving biomechanical optimal control
 problems. For example, OpenSim now includes Moco~\cite{Dembia2019} which allows
-users to find solutions with relatively low user overhead but that uses slower
-finite differences for gradients. One advantage of direct collocation when
-compared to shooting optimization methods is the speed at which solutions can be
-found. The computation costs can be orders of magnitude faster with direct
-collocation. But direct collocation methods rely on local minimization
-techniques and computational cost can still increase when searching for global
-minima.
+users to find optimal control solutions with lower overhead. One advantage of
+direct collocation when compared to shooting optimization methods is the speed
+at which solutions can be found. The computation costs can be orders of
+magnitude faster with direct collocation. But direct collocation formulations
+rely on local minimization techniques and computational cost may still be high
+when searching for global minima. There are computational choices in the design
+of direct collocation methods that can reduce computational efficiency also, for
+example, Moco relies on finite differences for gradients which can reduce
+optimization solution performance.
 
-Direct collocation methods require evaluating the system's equations of motion,
-its Jacobian, and possibly its Hessian thousands to millions of times for one
-solution, but this evaluation is easily parallelizable over multiple compute
-cores and can leverage the massive sparsity of the equations. This cannot be, in
-general, done in shooting methods that require sequential integration stepping.
-Maximizing the compute and memory performance of the functions that evaluate the
-constraints and their derivatives allows the subsequent optimization algorithms
-to solve very large problems, both in simulation duration and number of degrees
-of freedom.
+Solving an optimal control problem resulting from direct collocation requires
+evaluating the system's equations of motion, its Jacobian, and possibly its
+Hessian thousands to millions of times for one solution, but this evaluation is
+easily parallelizable over multiple compute cores and can leverage the massive
+sparsity of the equations. This cannot be, in general, done in shooting methods
+that require sequential integration stepping. Maximizing the compute and memory
+performance of the functions that evaluate the constraints and their derivatives
+allows the subsequent optimization algorithms to solve very large problems, both
+in simulation duration and number of degrees of freedom.
 
 Early dynamics simulation software used computer-aided algebra techniques, which
 allowed for analytical derivatives when forming equations of motion, but this
-has faded from popularity with growth of numerical physics engines. Code
+has faded from popularity with the growth of numerical physics engines. Code
 generated from computer aided algebra can be optimized for evaluation
 performance using compiler pre-optimizations and built-in compiler optimizations
-that are harder, or impossible, to apply to numeric physics engines.
+that are harder, or even impossible, to apply to numeric physics engines.
 
 We will demonstrate software that leverages symbolic formulations to generate
-computationally efficient parallelized functions based on implicit dynamics to evaluate the non-linear
-programming problem's constraints and its derivatives based on the ideas of \cite{vandenBogert2011a}. We will show an
-arm-muscle driven bicycle-rider model that has seven algebraic constraints and XXX million floating point
-operations for evaluating the constraints and its Jacobian.
+computationally efficient parallelized functions based on implicit dynamics to
+evaluate the non-linear programming problem's constraints and its derivatives
+based on the ideas of \cite{vandenBogert2011a}. We will show a 3D arm-muscle
+driven bicycle-rider model that has seven algebraic constraints and 2.8 million
+floating point operations in the equations of motion.
 %
 \begin{table*}[t]
   \centering
   \caption{Mean performance values for the arm-muscle driven bicycle model lane
-  change maneuver on a Macbook Pro XXX.}
+  change maneuver on a Macbook Pro with 2.4 GHz 8-Core processor, running Python 3.12.9, SymPy 1.13.3, and opty 1.4.0.}
   \scriptsize
   \begin{tabular}{lllllllllll}
     Symbolic & Symbolic & OCP & Constraint & Jacobian  & Jacobian & NLP & Objective &  Gradient & Constraint & Jacobian \\
@@ -87,8 +90,8 @@ operations for evaluating the constraints and its Jacobian.
 \section*{METHODS}
 %
 The non-linear equations of motion for musculoskeletal system can be described
-by differential algebraic equations that are a function of the state
-\(\mathbf{y}\), controls \(\mathbf{r}\), and constant parameters
+by differential algebraic equations that are a function of the state \(n\)
+states \(\mathbf{y}\), controls \(\mathbf{r}\), and constant parameters
 \(\mathbf{p}\), in general. These equations take this form:
 %
 \begin{align}
@@ -97,38 +100,39 @@ by differential algebraic equations that are a function of the state
 \end{align}
 %
 These equations can contain elements such as musculotendon force-velocity
-relationships, kinematic loops, friction, collision, etc. We write these
-equations as analytically differentiable functions. The Jacobian and Hessian can
-be formed by recursive symbolic differentiation. To map these to non-linear
-programming constraints we discretize the equations with backward Euler
-differentiation over a constant time step and code generate functions in C that
-evaluate the constraints and Jacobian over all nodes, while exploiting the high
-sparsity of the Jacobian~\cite{Moore2018}. The symbolic Jacobian is calculated
-in forward mode applying the chain rule through all common sub-expressions which
-handles large equations of motion. This results in cacheable computationally
-efficient numerical functions that evaluate the non-linear programming problem
-constraints and its Jacobian. Evaluation of the objective is generally a low
-computational cost, so this is only done in Python, also with a symbolic to
-numeric conversion.
+relationships, kinematic loops, friction and collision forces, etc. We write
+these equations as analytically differentiable functions. To map these to
+non-linear programming constraints we discretize the equations with backward
+Euler differentiation over a constant time step and code generate functions in C
+that evaluate the constraints and Jacobian over all \(N\) nodes, while
+exploiting the high sparsity of the Jacobian~\cite{Moore2018}. The symbolic
+Jacobian is calculated in forward mode applying the chain rule through all
+common sub-expressions which handles equations of motion with large or many
+operations. This results in cacheable computationally efficient numerical
+functions that evaluate the non-linear programming problem constraints and its
+Jacobian. Evaluation of the objective is generally a low computational cost, so
+this is only done in Python, also with a symbolic to numeric conversion.
 
 \section*{RESULTS AND DISCUSSION}
 %
-To demonstrate the qualities of our methods we have developed a bicycle-rider
-model that includes the non-linear Carvallo-Whipple of the vehicle and with four
+To demonstrate the qualities of our methods, we have developed a bicycle-rider
+model that includes the non-linear Carvallo-Whipple of the vehicle with four
 additional rigid bodies representing the upper and lower arm body
 segments~\cite{Stienstra2023a}. The arms are added in such a way that no
-additional degrees of freedom are added to the vehicle model due to the
+additional degrees of freedom are added to the vehicle model due to introduced
 closed-loop kinematic constraints. The model has seven holonomic constraints and
-four nonholonomic constraints . We include four lumped Hill-Type muscle models
-representing the extensor and flexor groups for the elbow. This results in a set
-of differential algebraic equations with 2.8M floating point operations in the
-symbolic equations of motion. After compiler pre-optimizations, this reduces to
-XK and XM, for the constraints and Jacobian respectively. Once the constraints
-and Jacobian NLP numerical evaluation functions are rewritten the evaluation
-time depends on the number of nodes. For X nodes we time the evaluation of these
-two functions with and without parallelization using from OpenMP. We then solve
-the optimal control problem defined by the objective to follow a lane change
-path with the front wheel.
+four nonholonomic constraints resulting in a 10\textsuperscript{th} order model.
+We include four lumped Hill-Type muscle models representing the extensor and
+flexor groups for the elbow. This results in a set of differential algebraic
+equations with 2.8M floating point operations in the implicit symbolic equations
+of motion. After efficient Jacobian formulation and compiler pre-optimizations,
+this reduces to 10K and 69K operations, for the constraints and Jacobian
+respectively. Once the constraints and Jacobian NLP numerical evaluation
+functions are rewritten the evaluation time depends on the number of nodes, so
+\(N\times\)79K. For X nodes we time the evaluation of these two functions with
+and without parallelization using from OpenMP. We then solve the optimal control
+problem defined by the objective to follow a lane change path with the front
+wheel.
 
 \begin{figure}
     \centering
