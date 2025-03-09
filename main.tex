@@ -21,6 +21,9 @@
 % make section headers 11 pt font
 \sectionfont{\fontsize{11}{15}\selectfont}
 
+% change bibliography heading
+\renewcommand\refname{REFERENCES}
+
 \title{\normalsize\textbf{
   FAST SYMBOLIC METHODS FOR MUSCLE-DRIVEN OPTIMAL CONTROL
 }}
@@ -30,7 +33,7 @@ Samuel G. Brockie\textsuperscript{2} and
 Timótheüs J. Stienstra\textsuperscript{3} and
 Antonie van den Bogert\textsuperscript{4} \\
 \\
-% TODO : Make affliations 10pt
+\small
 \textsuperscript{1}Department of BioMechanical Engineering, Delft University of Technology, The Netherlands\\
 \textsuperscript{2}Department of Engineering, University of Cambridge, United Kingdom\\
 \textsuperscript{3}Aerospace Engineering, Delft University of Technology, The Netherlands\\
@@ -85,13 +88,12 @@ based on the ideas of \cite{vandenBogert2011a}. We demonstrate solving a 3D
 arm-muscle driven bicycle-rider model that has three degrees of freedom and
 seven algebraic constraints resulting in millions of floating point operations
 in the implicit equations of motion.
-%
+
 \begin{table*}[t]
   \centering
-  % TODO : Make caption 10pt.
-  \caption{Mean performance for the bicycle-rider solution on a Macbook Pro
+  \caption{\small Mean performance for the bicycle-rider solution on a Macbook Pro
     with 2.4 GHz 8-Core processor, running Python 3.12.9, SymPy 1.13.3, and
-    opty 1.4.0 using Ipopt 3.14.17 with Mumps 5.7.3}
+    opty 1.4.0 using Ipopt 3.14.17 with Mumps 5.7.3.}
   \scriptsize
   \begin{tabular}{lllllllllll}
     \toprule
@@ -199,22 +201,23 @@ fixed duration of X seconds, as an optimal control problem.
 \vspace{-1em}
 \section*{RESULTS AND DISCUSSION}
 \vspace{-1em}
+\pagestyle{empty}
 %
-\begin{figure}
-    \centering
-    \includegraphics[width=0.7\linewidth]{figures/arm-muscle-bicycle-excitation.png}
-    % TODO : Make caption 10pt.
-    \caption{Triceps and biceps muscle group excitations for the left and right
-      arms to execute a lane change maneuver.}
-    \label{fig:trajectories}
-\end{figure}
-
 Table~\ref{tab:performance} shows timings for solving an 200 node bicycle-rider
 problem. Building the model and forming the optimal control problem takes 185
 seconds with most time spent compiling the generated functions with Clang. This
 can be cached to disk and need not be built again unless the dynamics model
 changes. Ipopt solves the problem to an acceptable level in 73 seconds.
 Fig.~\ref{fig:trajectories} shows an example optimal solution.
+%
+\begin{figure}
+    \centering
+    % TODO : squish height of figure for full linewidth
+    \includegraphics[width=0.85\linewidth]{figures/arm-muscle-bicycle-excitation.png}
+    \caption{\small Optimal trajectories of the bicycle-rider model.}
+    \label{fig:trajectories}
+\end{figure}
+
 
 \vspace{-1em}
 \section*{CONCLUSIONS}
@@ -228,7 +231,6 @@ to evaluate these functions thousands or millions of times, for example in a
 long duration problem, the overall solution can be minimized.
 
 \vspace{-1em}
-% TODO : Change "References" header to all caps
 \bibliographystyle{abbrv}
 \bibliography{references}
 
