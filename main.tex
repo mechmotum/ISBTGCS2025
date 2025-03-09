@@ -3,6 +3,7 @@
 \usepackage[includehead,margin=0.5in]{geometry}
 \usepackage{fancyhdr}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{parskip}  % disable paragraph indent
 \usepackage{helvet}
@@ -44,27 +45,23 @@ July 23rd – 25th 2025, Uppsala}}
 \section*{INTRODUCTION}
 %
 Direct collocation is now widely used for solving biomechanical optimal control
-problems. For example, OpenSim now includes Moco~\cite{Dembia2019} which allows
+problems. For example, OpenSim includes Moco~\cite{Dembia2019} which allows
 users to find optimal control solutions with lower overhead. One advantage of
-direct collocation when compared to shooting optimization methods is the speed
-at which solutions can be found. The computation costs can be orders of
-magnitude faster with direct collocation. But direct collocation formulations
-rely on local minimization techniques and computational cost may still be high
-when searching for global minima. There are computational choices in the design
-of direct collocation methods that can reduce computational efficiency. For
-example, Moco relies on finite differences for gradients which can reduce
-optimization solution performance and accuracy.
+direct collocation is the speed at which solutions can be found, can be orders
+of magnitude faster than methods which require integrating the differential
+equations. Direct collocation methods can still be slow when searching for
+global minima and choices in the software design can reduce computational
+efficiency. For example, Moco relies on finite differences for gradients which
+can reduce performance and accuracy.
 
 Solving an optimal control problem resulting from direct collocation requires
 evaluating the system's equations of motion, its Jacobian, and possibly its
-Hessian thousands to millions of times for one optimization solution, but this
-evaluation is easily parallelizable over multiple compute cores and can leverage
-the massive sparsity of the equations. This cannot be, in general, done in
-shooting methods that require sequential integration stepping. Maximizing the
-compute and memory performance of the functions that evaluate the constraints
-and their derivatives allows the subsequent optimization algorithms to solve
-very large problems, both in simulation duration and number of degrees of
-freedom.
+Hessian thousands to millions of times, but this evaluation is parallelizable
+over multiple compute cores and can leverage the massive sparsity of the
+equations. Maximizing the compute and memory performance of the functions that
+evaluate the constraints and their derivatives allow the subsequent optimization
+algorithms to solve very large problems, both in simulation duration and number
+of degrees of freedom.
 
 Early dynamics simulation software used computer-aided algebra techniques, which
 allowed for analytical derivatives when forming equations of motion, but this
@@ -84,13 +81,15 @@ of motion.
 %
 \begin{table*}[t]
   \centering
-  \caption{Mean performance values for the arm-muscle driven bicycle model lane
-  change maneuver on a Macbook Pro with 2.4 GHz 8-Core processor, running Python
-  3.12.9, SymPy 1.13.3, and opty 1.4.0.}
+  \caption{Mean performance for the bicycle-rider solution on a Macbook Pro with
+  2.4 GHz 8-Core processor, running Python 3.12.9, SymPy 1.13.3, and opty 1.4.0
+  using Ipopt with Mumps X.X.X}
   \scriptsize
   \begin{tabular}{lllllllllll}
     Symbolic & Symbolic & OCP & Constraint & Jacobian  & Jacobian & NLP & Objective &  Gradient & Constraint & Jacobian \\
-    EOM & OCP & Solve & Compilation &  Compilation & Differentiation & iterations & evaluations & evaluations & evaluations & evaluations \\
+    EoM [s] & OCP [s] & Solve [s] & Compilation [s] & Compilation [s] &
+    Differentiation [s] & iterations & evaluations & evaluations & evaluations &
+    evaluations \\
     14.9 & 169.8 & 73.0 & 58.3 & 66.7 & 35.4 & 286 & 1098 & 286 & 1098 & 292
   \end{tabular}
   \label{tab:performance}
@@ -99,13 +98,13 @@ of motion.
 \section*{METHODS}
 %
 The non-linear equations of motion for musculoskeletal-vehicle system can be
-described by differential algebraic equations that are a function of the \(n\)
-states \(\mathbf{y}\), controls \(\mathbf{r}\), and constant parameters
-\(\mathbf{p}\), in general. These equations take this form:
+described by differential algebraic equations that are a function of the states
+\(\mathbf{y} \in \mathbb{R}^n\), controls \(\mathbf{r}\), and constant
+parameters \(\mathbf{p}\), in general. The implicit equations take this form:
 %
 \begin{align}
   \mathbf{f}(\dot{\mathbf{y}}(t), \mathbf{y}(t), \mathbf{r}(t), \mathbf{p}) =
-  \mathbf{0} \in \mathrm{R}^n
+  \mathbf{0} \in \mathbb{R}^n
 \end{align}
 %
 These equations can contain elements such as musculotendon force-velocity
@@ -114,35 +113,31 @@ these equations as analytically differentiable functions. To map these to
 non-linear programming constraints we discretize the equations with backward
 Euler differentiation over a constant time step and code generate functions in C
 that evaluate the constraints and Jacobian over all \(N\) nodes, while
-exploiting the high sparsity of the Jacobian using opty~\cite{Moore2018}. The
+exploiting the high sparsity of the Jacobian, using opty~\cite{Moore2018}. The
 symbolic Jacobian is calculated in forward mode applying the chain rule through
-all common sub-expressions which handles equations of motion with many
-mathematical operations. This results in cacheable computationally efficient
-numerical functions that evaluate the non-linear programming problem constraints
-and its Jacobian. Evaluation of the objective is generally a low computational
-cost, so this is only done in Python, also with a symbolic to numeric
-conversion. Lastly, we define a lane change tracking task, starting from zero
-speed up to a mean speed of X m/s over the fixed duration, with minimial muscle
-excitation as an optimal control problem.
+all common sub-expressions which efficiently handles differentiating equations
+of motion with many mathematical operations. This results in cacheable
+computationally efficient numerical functions that evaluate the non-linear
+programming problem constraints and its Jacobian. Evaluation of the objective is
+generally a low computational cost, so this is only done in Python, also with a
+symbolic to numeric conversion.
 
-To demonstrate the qualities of our methods, we have developed a bicycle-rider
-model that includes the non-linear Carvallo-Whipple of the vehicle with four
-additional rigid bodies representing the upper and lower arm body
-segments~\cite{Stienstra2023a}. The arms are added in such a way that no
-additional degrees of freedom are added to the vehicle model due to introduced
-closed-loop kinematic constraints. The model has seven holonomic constraints and
-four nonholonomic constraints resulting in a 10\textsuperscript{th} order model.
-We include four lumped Hill-Type muscle models representing the extensor and
-flexor groups for the elbow. This results in a set of differential algebraic
-equations with 2.8M floating point operations in the implicit symbolic equations
-of motion. After efficient Jacobian formulation and compiler pre-optimizations,
-this reduces to 10K and 69K operations, for the constraints and Jacobian
-respectively. Once the constraints and Jacobian NLP numerical evaluation
-functions are rewritten the evaluation time depends on the number of nodes, so
-\(N\times\)79K. For X nodes we time the evaluation of these two functions with
-and without parallelization using from OpenMP. We then solve the optimal control
-problem defined by the objective to follow a lane change path with the front
-wheel.
+To demonstrate our methods, we developed a bicycle-rider model that is the
+non-linear Carvallo-Whipple model of the vehicle with four additional rigid
+bodies representing the upper and lower arm body segments using
+SymBRiM~\cite{Stienstra2023a}. We include four lumped Hill-Type muscle models
+representing the extensor and flexor groups for the elbow. The model has seven
+holonomic constraints and four nonholonomic constraints resulting in a
+13\textsuperscript{th} order model with seven algebraic equations. This results
+in equations with 2.8M floating point operations in the implicit symbolic
+equations of motion. After efficient Jacobian formulation and compiler
+pre-optimizations, this reduces to 10K and 69K operations, for evaluating the
+constraints and Jacobian respectively. This numerical evaluation time depends on
+the number of nodes, so \(N\times\)79K. For X nodes we time the evaluation of
+these two functions with and without parallelization using OpenMP. Lastly, we
+define a minimial muscle excitation lane change tracking task, starting from
+zero speed up to a mean speed of X m/s over the fixed duration of X seconds, as
+an optimal control problem.
 
 \section*{RESULTS AND DISCUSSION}
 %
@@ -150,28 +145,31 @@ wheel.
     \centering
     \includegraphics[width=\linewidth]{figures/arm-muscle-bicycle-excitation.png}
     \caption{Triceps and biceps muscle group excitations for the left and right arms to execute a lane change maneuver.}
-    \label{fig:enter-label}
+    \label{fig:trajectories}
 \end{figure}
 
-The timings are shown in Table~\ref{tab:performance}. Building the model and
-forming the optimal control problem takes 185 seconds with most time spent
-compiling the generated functions with Clang. This can be cached to disk and
-need not be built again unless the dynamics model changes. IPOPT solves the
-problem to an acceptable level in 73 seconds.
+Table~\ref{tab:performance} shows timings for solving an N node bicycle-rider
+problem. Building the model and forming the optimal control problem takes 185
+seconds with most time spent compiling the generated functions with Clang. This
+can be cached to disk and need not be built again unless the dynamics model
+changes. Ipopt solves the problem to an acceptable level in 73 seconds.
+Fig.~\ref{fig:trajectories} shows an example optimal solution.
 
 \section*{CONCLUSIONS}
 %
-Our methods maximize the performance of evaluating the optimal control
-constraint and Jacobian numerical functions. The performance of these functions
-scale linearly with the number of collocation nodes and can be sped up
-approximately multiplicatively by the number of compute cores available.
-Whenever IPOPT needs to evaluate these functions thousands or millions of times
-the overall solution can be minimized.
+Our methods focus on maximizing the performance of evaluating the constraint and
+Jacobian numerical functions. The performance of these functions scale linearly
+with the number of collocation nodes and can be sped up approximately
+multiplicatively by the number of compute cores available. Whenever IPOPT needs
+to evaluate these functions thousands or millions of times the overall solution
+can be minimized.
 
+\bibliographystyle{abbrv}
 \bibliography{references}
-\bibliographystyle{plain}
 
 \section*{ACKNOWLEDGMENTS}
-Peter Stahlecker
+%
+Peter Stahlecker made contributions to this work.
+
 
 \end{document}
