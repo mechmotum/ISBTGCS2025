@@ -59,14 +59,14 @@ July 23rd – 25th 2025, Uppsala}}
 \vspace{-1em}
 %
 Direct collocation is now widely used for solving biomechanical optimal control
-problems. For example, OpenSim includes Moco~\cite{Dembia2020} which allows
+problems. For example, OpenSim now includes Moco~\cite{Dembia2020} which allows
 users to find optimal control solutions with lower overhead. One advantage of
 direct collocation is the speed at which solutions can be found, which can be
 orders of magnitude faster than methods which require sequentially integrating
 the differential equations. Direct collocation methods can still result in
 overall slower speed when searching for global minima and choices in the
 software design can reduce computational efficiency. For example, Moco relies on
-finite differences for gradients which can reduce performance and accuracy.
+finite differences for gradients which may reduce performance and accuracy.
 
 Solving an optimal control problem resulting from direct collocation requires
 evaluating the system's equations of motion, its Jacobian, and possibly its
@@ -82,7 +82,7 @@ allowed for analytical derivatives when forming equations of motion, but this
 has faded from popularity with the growth of numerical physics engines. Code
 generated from computer-aided algebra can be optimized for evaluation
 performance using both compiler pre-optimizations and built-in compiler
-optimizations that are harder to apply to numeric physics engines.
+optimizations that can be harder to apply to numeric physics engines.
 
 We will demonstrate software that leverages symbolic formulations to generate
 computationally efficient parallelized functions based on implicit dynamics to
@@ -147,8 +147,8 @@ equations of motion.
 \section*{METHODS}
 \vspace{-1em}
 %
-The non-linear equations of motion for musculoskeletal-vehicle system can be
-described by differential algebraic equations that are a function of the states
+The non-linear equations of motion for musculoskeletal-vehicle systems can be
+described by differential algebraic equations that are functions of the states
 \(\mathbf{y} \in \mathbb{R}^n\), controls \(\mathbf{r}\), and constant
 parameters \(\mathbf{p}\), in general. The implicit equations take this form:
 %
@@ -183,12 +183,12 @@ This results in 17 equations with 2.8M floating point operations in the implicit
 symbolic equations of motion. After efficient Jacobian formulation and compiler
 pre-optimizations, this reduces to 10K and 69K operations for evaluating the
 constraints and Jacobian, respectively. This numerical evaluation time depends
-on the number of nodes, so approximately \(N\times\)79K. For \(N=\)~10K we time
-the evaluation of these two functions with and without parallelization using
-OpenMP 4.5 seeing a 2.5\(\times\) and 2\(\times\) speed up over 64 ms and 500
-ms, respectively. Lastly, we define a minimial muscle excitation lane change
-tracking task, starting from zero speed up to a mean speed of 3 m/s over the
-fixed duration of 6 seconds, as an optimal control problem.
+on the number of nodes, so proportional to \(N\times\)79K. For \(N=\)~10K we
+time the evaluation of these two functions with and without parallelization
+using OpenMP 4.5 seeing a 4.6\(\times\) and 3.1\(\times\) speed up over 23 ms
+and 190 ms, respectively. Lastly, we define a minimal muscle excitation lane
+change tracking task, starting from zero speed up to a mean speed of 3 m/s over
+the fixed duration of 6 seconds, as an optimal control problem.
 
 % 10K nodes on Jason's laptop
 % single thread:
@@ -202,12 +202,24 @@ fixed duration of 6 seconds, as an optimal control problem.
 % In [4]: %timeit problem.jacobian(initial_guess)
 % 253 ms ± 38.8 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
+% 10K nodes on Sam's laptop
+% single thread:
+% In [1]: %timeit data.problem.constraints(data.initial_guess)
+% 23.0 ms ± 553 μs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+% In [1]: %timeit data.problem.jacobian(data.initial_guess)
+% 189 ms ± 1.09 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
+% parallel:
+% In [4]: %timeit data.problem.constraints(data.initial_guess)
+% 5.05 ms ± 212 μs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+% In [9]: %timeit data.problem.jacobian(data.initial_guess)
+% 60.2 ms ± 1.4 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
+
 \vspace{-1.5em}
 \section*{RESULTS AND DISCUSSION}
 \vspace{-1em}
 \pagestyle{empty}
 %
-Table~\ref{tab:performance} shows timings for solving an 200 node lane change
+Table~\ref{tab:performance} shows timings for solving a 200 node lane change
 problem. Building the model and forming the OCP takes 185 seconds with most time
 spent compiling the generated functions with Clang. This is a fixed cost
 regardless of the size of \(N\) and can be cached to disk and need not be built
@@ -242,6 +254,6 @@ long-duration problem, the overall compute time can be greatly reduced.
 \section*{ACKNOWLEDGMENTS}
 \vspace{-1em}
 %
-P. Stahlecker contributed to opty and funding from CZI.
+P. Stahlecker contributed to opty; funds were from CZI.
 
 \end{document}
