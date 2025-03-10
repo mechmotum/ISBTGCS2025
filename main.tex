@@ -35,9 +35,13 @@ Antonie van den Bogert\textsuperscript{4} \\
 \\
 \small
 \textsuperscript{1}Department of BioMechanical Engineering, Delft University of Technology, The Netherlands\\
+\small
 \textsuperscript{2}Department of Engineering, University of Cambridge, United Kingdom\\
+\small
 \textsuperscript{3}Aerospace Engineering, Delft University of Technology, The Netherlands\\
+\small
 \textsuperscript{4}Mechanical Engineering, Cleveland State University, USA\\
+\small
 Email: j.k.moore@tudelft.nl}
 \date{}
 
@@ -58,11 +62,11 @@ Direct collocation is now widely used for solving biomechanical optimal control
 problems. For example, OpenSim includes Moco~\cite{Dembia2020} which allows
 users to find optimal control solutions with lower overhead. One advantage of
 direct collocation is the speed at which solutions can be found, which can be
-orders of magnitude faster than methods which require integrating the
-differential equations. Direct collocation methods can still result in overall
-slower speed when searching for global minima and choices in the software
-design can reduce computational efficiency. For example, Moco relies on finite
-differences for gradients which can reduce performance and accuracy.
+orders of magnitude faster than methods which require sequentially integrating
+the differential equations. Direct collocation methods can still result in
+overall slower speed when searching for global minima and choices in the
+software design can reduce computational efficiency. For example, Moco relies on
+finite differences for gradients which can reduce performance and accuracy.
 
 Solving an optimal control problem resulting from direct collocation requires
 evaluating the system's equations of motion, its Jacobian, and possibly its
@@ -73,27 +77,27 @@ evaluate the constraints and their derivatives allow the subsequent
 optimization algorithms to solve very large problems, both in simulation
 duration and number of degrees of freedom.
 
-Early dynamics simulation software used computer-aided algebra techniques,
-which allowed for analytical derivatives when forming equations of motion, but
-this has faded from popularity with the growth of numerical physics engines.
-Code generated from computer-aided algebra can be optimized for evaluation
+Early dynamics simulation software used computer-aided algebra techniques, which
+allowed for analytical derivatives when forming equations of motion, but this
+has faded from popularity with the growth of numerical physics engines. Code
+generated from computer-aided algebra can be optimized for evaluation
 performance using both compiler pre-optimizations and built-in compiler
-optimizations that are harder, or even impossible, to apply to numeric physics
-engines.
+optimizations that are harder to apply to numeric physics engines.
 
 We will demonstrate software that leverages symbolic formulations to generate
 computationally efficient parallelized functions based on implicit dynamics to
-evaluate the non-linear programming problem's constraints and its derivatives
-based on the ideas of \cite{vandenBogert2011a}. We demonstrate solving a 3D
-arm-muscle driven bicycle-rider model that has three degrees of freedom and
-seven algebraic constraints resulting in millions of floating point operations
-in the implicit equations of motion.
+evaluate the non-linear programming problem's constraints and its Jacobian based
+on the ideas of \cite{vandenBogert2011a}. We demonstrate solving a 3D arm-muscle
+driven bicycle-rider model that has three degrees of freedom and seven algebraic
+constraints resulting in millions of floating point operations in the implicit
+equations of motion.
 
 \begin{table*}[t]
   \centering
-  \caption{\small Mean performance for the bicycle-rider solution on a Macbook Pro
-    with 2.4 GHz 8-Core processor, running Python 3.12.9, SymPy 1.13.3, and
-    opty 1.4.0 using Ipopt 3.14.17 with Mumps 5.7.3.}
+  \caption{\small Mean performance of seven bicycle-rider \(N=200\) optimal
+  control problem (OCP) solutions on a Macbook Pro with 2.4 GHz 8-Core
+  processor, running Python 3.12.9, SymPy 1.13.3, and opty 1.4.0 using Ipopt
+  3.14.17 with Mumps 5.7.3.}
   \scriptsize
   \begin{tabular}{lllllllllll}
     \toprule
@@ -139,7 +143,7 @@ in the implicit equations of motion.
   \label{tab:performance}
 \end{table*}
 
-\vspace{-1em}
+\vspace{-1.5em}
 \section*{METHODS}
 \vspace{-1em}
 %
@@ -158,14 +162,14 @@ relationships, kinematic loops, friction and collision forces, etc. We write
 these equations as analytically differentiable functions. To map these to
 non-linear programming constraints we discretize the equations with backward
 Euler differentiation over a constant time step and code generate functions in
-C that evaluate the constraints and Jacobian over all \(N\) nodes, while
-exploiting the high sparsity of the Jacobian, using opty~\cite{Moore2018}. The
+C using opty~\cite{Moore2018} that evaluate the constraints and Jacobian over
+all \(N\) nodes while exploiting the high sparsity of the Jacobian. The
 symbolic Jacobian is calculated in forward mode applying the chain rule through
 all common sub-expressions which efficiently handles differentiating equations
 of motion with many mathematical operations. This results in cacheable
 computationally efficient numerical functions that evaluate the non-linear
-programming problem constraints and its Jacobian. Evaluation of the objective
-is generally a low computational cost, so this is only done in Python, but also
+programming problem constraints and its Jacobian. Evaluation of the objective is
+generally a low computational cost, so this is only done in Python, but also
 with a symbolic-to-numeric conversion.
 
 To demonstrate our methods, we developed a bicycle-rider model that is the
@@ -174,17 +178,17 @@ bodies representing the upper and lower arm body segments using
 SymBRiM~\cite{Stienstra2023a}. We include four lumped Hill-type muscle models
 representing the extensor and flexor groups for the elbow. The model has seven
 holonomic constraints and four nonholonomic constraints resulting in a
-13\textsuperscript{th} order model with seven algebraic equations. This results
-in equations with 2.8M floating point operations in the implicit symbolic
-equations of motion. After efficient Jacobian formulation and compiler
+10\textsuperscript{th} order model with seven additional algebraic equations.
+This results in 17 equations with 2.8M floating point operations in the implicit
+symbolic equations of motion. After efficient Jacobian formulation and compiler
 pre-optimizations, this reduces to 10K and 69K operations for evaluating the
 constraints and Jacobian, respectively. This numerical evaluation time depends
 on the number of nodes, so approximately \(N\times\)79K. For \(N=\)~10K we time
 the evaluation of these two functions with and without parallelization using
 OpenMP 4.5 seeing a 2.5\(\times\) and 2\(\times\) speed up over 64 ms and 500
 ms, respectively. Lastly, we define a minimial muscle excitation lane change
-tracking task, starting from zero speed up to a mean speed of X m/s over the
-fixed duration of X seconds, as an optimal control problem.
+tracking task, starting from zero speed up to a mean speed of 3 m/s over the
+fixed duration of 6 seconds, as an optimal control problem.
 
 % 10K nodes on Jason's laptop
 % single thread:
@@ -198,37 +202,37 @@ fixed duration of X seconds, as an optimal control problem.
 % In [4]: %timeit problem.jacobian(initial_guess)
 % 253 ms ± 38.8 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
-\vspace{-1em}
+\vspace{-1.5em}
 \section*{RESULTS AND DISCUSSION}
 \vspace{-1em}
 \pagestyle{empty}
 %
-Table~\ref{tab:performance} shows timings for solving an 200 node bicycle-rider
-problem. Building the model and forming the optimal control problem takes 185
-seconds with most time spent compiling the generated functions with Clang. This
-can be cached to disk and need not be built again unless the dynamics model
-changes. Ipopt solves the problem to an acceptable level in 73 seconds.
+Table~\ref{tab:performance} shows timings for solving an 200 node lane change
+problem. Building the model and forming the OCP takes 185 seconds with most time
+spent compiling the generated functions with Clang. This is a fixed cost
+regardless of the size of \(N\) and can be cached to disk and need not be built
+again unless the dynamics model changes. Ipopt solves the problem in 73 seconds.
 Fig.~\ref{fig:trajectories} shows an example optimal solution.
 %
 \begin{figure}
     \centering
-    % TODO : squish height of figure for full linewidth
-    \includegraphics[width=0.85\linewidth]{figures/arm-muscle-bicycle-excitation.png}
-    \caption{\small Optimal trajectories of the bicycle-rider model.}
+    \includegraphics[width=\linewidth]{figures/arm-muscle-bicycle-excitation.png}
+    \caption{\small An optimal solution: 1) bicycle motion, 2) left/right
+    arm biceps/triceps muscle excitations, 3) bicycle speed (solid) and
+    propulsion torque (dashed), and 4) lateral displacement.}
     \label{fig:trajectories}
 \end{figure}
 
-
-\vspace{-1em}
+\vspace{-1.5em}
 \section*{CONCLUSIONS}
 \vspace{-1em}
 %
-Our methods focus on maximizing the performance of evaluating the constraint
-and Jacobian numerical functions. The performance of these functions scale
-linearly with the number of collocation nodes and can be sped up
-multiplicatively by the number of compute cores available. Whenever Ipopt needs
-to evaluate these functions thousands or millions of times, for example in a
-long duration problem, the overall solution can be minimized.
+Our methods focus on maximizing the performance of evaluating the constraint and
+Jacobian numerical functions. The performance of these functions scales linearly
+with the number of collocation nodes and can be sped up multiplicatively by the
+number of compute cores available in the best-case scenario. When Ipopt needs to
+evaluate these functions thousands or millions of times, for example in a
+long-duration problem, the overall compute time can be greatly reduced.
 
 \vspace{-1em}
 \bibliographystyle{abbrv}
@@ -238,6 +242,6 @@ long duration problem, the overall solution can be minimized.
 \section*{ACKNOWLEDGMENTS}
 \vspace{-1em}
 %
-Peter Stahlecker made contributions to the work.
+P. Stahlecker contributed to opty and funding from CZI.
 
 \end{document}
