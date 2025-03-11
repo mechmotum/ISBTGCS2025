@@ -16,7 +16,7 @@ jobs:
           root_file: main.tex
       - name: Convert to html
         run: |
-          apt install pandoc
+          sudo apt install -y pandoc
           mkdir ghpages
           pandoc --mathjax --standalone -o ghpages/index.html main.tex --citeproc --bibliography references.bib
       - name: Upload PDF file
