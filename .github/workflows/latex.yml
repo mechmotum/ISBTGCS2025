@@ -14,6 +14,11 @@ jobs:
         uses: xu-cheng/latex-action@v3
         with:
           root_file: main.tex
+      - name: Convert to html
+        run: |
+          apt install pandoc
+          mkdir ghpages
+          pandoc --mathjax --standalone -o ghpages/index.html main.tex --citeproc --bibliography references.bib
       - name: Upload PDF file
         uses: actions/upload-artifact@v4
         with:
@@ -21,7 +26,6 @@ jobs:
           path: main.pdf
       - name: Setup deploy folder
         run: |
-          mkdir ghpages
           mv main.pdf ghpages/main.pdf
       - name: Push PDF to ghpages
         uses: JamesIves/github-pages-deploy-action@v4
