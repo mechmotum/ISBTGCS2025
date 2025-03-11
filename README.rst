@@ -1,18 +1,13 @@
+Conference abstract for International Society of Biomechanics Technical Group
+Computer Simulation 2025.
+
 Conference website: http://isbweb.org/~tgcs/iscsb-2025/uppsala.html
 
-Outline
-=======
+Title: FAST SYMBOLIC METHODS FOR MUSCLE-DRIVEN OPTIMAL CONTROL
+Authors: Jason K. Moore, Samuel G. Brockie, Timótheüs J. Stienstra, Antonie van den Bogert
 
-- Introduction to symbolic -> direct collocation compared to other approaches.
-- Methods
+PDF: https://github.com/mechmotum/ISBTGCS2025/blob/gh-pages/main.pdf
 
-  - Symbolic description of optimal control problem
-  - Efficient symbolic Jacobian
-  - Translataion to sparse parallelized evaluation of constraints + Jacobian
+License: CC-BY 4.0
 
-- Results and Discussion
-
-  - One Legged Time Trial Example
-  - Muscle Driven Bicycle Control (evaluation speed)
-
-- Conclusions
+Companion code repository: https://github.com/mechmotum/muscle-driven-bicycle-paper
