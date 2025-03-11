@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Jason K. Moore1 and Samuel G. Brockie2 and Timótheüs J. Stienstra3 and Antonie van den Bogert4  1Department of BioMechanical Engineering, Delft University of Technology, The Netherlands 2Department of Engineering, University of Cambridge, United Kingdom 3Aerospace Engineering, Delft University of Technology, The Netherlands 4Mechanical Engineering, Cleveland State University, USA Email: j.k.moore@tudelft.nl" />
+  <title> FAST SYMBOLIC METHODS FOR MUSCLE-DRIVEN OPTIMAL CONTROL </title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="/usr/share/javascript/mathjax/MathJax.js"
+  type="text/javascript"></script>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title"> <strong>FAST SYMBOLIC METHODS FOR MUSCLE-DRIVEN
+OPTIMAL CONTROL</strong> </h1>
+<p class="author">Jason K. Moore<sup>1</sup> and Samuel G.
+Brockie<sup>2</sup> and Timótheüs J. Stienstra<sup>3</sup> and Antonie
+van den Bogert<sup>4</sup><br />
+<br />
+<sup>1</sup>Department of BioMechanical Engineering, Delft University of
+Technology, The Netherlands<br />
+<sup>2</sup>Department of Engineering, University of Cambridge, United
+Kingdom<br />
+<sup>3</sup>Aerospace Engineering, Delft University of Technology, The
+Netherlands<br />
+<sup>4</sup>Mechanical Engineering, Cleveland State University,
+USA<br />
+Email: j.k.moore@tudelft.nl</p>
+</header>
+<h1 class="unnumbered" id="introduction">INTRODUCTION</h1>
+<p>Direct collocation is now widely used for solving biomechanical
+optimal control problems. For example, OpenSim now includes Moco <span
+class="citation" data-cites="Dembia2020">(Dembia et al. 2020)</span>
+which allows users to find optimal control solutions with lower
+overhead. One advantage of direct collocation is the speed at which
+solutions can be found, which can be orders of magnitude faster than
+methods which require sequentially integrating the differential
+equations. Direct collocation methods can still result in overall slower
+speed when searching for global minima and choices in the software
+design can reduce computational efficiency. For example, Moco relies on
+finite differences for gradients which may reduce performance and
+accuracy.</p>
+<p>Solving an optimal control problem resulting from direct collocation
+requires evaluating the system’s equations of motion, its Jacobian, and
+possibly its Hessian thousands to millions of times, but this evaluation
+is parallelizable over multiple compute cores and can leverage the
+massive sparsity of the equations. Maximizing the compute and memory
+performance of the functions that evaluate the constraints and their
+derivatives allow the subsequent optimization algorithms to solve very
+large problems, both in simulation duration and number of degrees of
+freedom.</p>
+<p>Early dynamics simulation software used computer-aided algebra
+techniques, which allowed for analytical derivatives when forming
+equations of motion, but this has faded from popularity with the growth
+of numerical physics engines. Code generated from computer-aided algebra
+can be optimized for evaluation performance using both compiler
+pre-optimizations and built-in compiler optimizations that can be harder
+to apply to numeric physics engines.</p>
+<p>We will demonstrate software that leverages symbolic formulations to
+generate computationally efficient parallelized functions based on
+implicit dynamics to evaluate the non-linear programming problem’s
+constraints and its Jacobian based on the ideas of <span
+class="citation" data-cites="vandenBogert2011a">(van den Bogert, Blana,
+and Heinrich 2011)</span>. We demonstrate solving a 3D arm-muscle driven
+bicycle-rider model that has three degrees of freedom and seven
+algebraic constraints resulting in millions of floating point operations
+in the implicit equations of motion.</p>
+<div class="table*">
+<table>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Symbolic</td>
+<td style="text-align: left;">Symbolic</td>
+<td style="text-align: left;">Constraint</td>
+<td style="text-align: left;">Jacobian</td>
+<td style="text-align: left;">Symbolic</td>
+<td style="text-align: left;">OCP</td>
+<td style="text-align: left;">NLP</td>
+<td style="text-align: left;">Objective</td>
+<td style="text-align: left;">Gradient</td>
+<td style="text-align: left;">Constraint</td>
+<td style="text-align: left;">Jacobian</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">EoM [s]</td>
+<td style="text-align: left;">Jacobian [s]</td>
+<td style="text-align: left;">Clang [s]</td>
+<td style="text-align: left;">Clang [s]</td>
+<td style="text-align: left;">OCP [s]</td>
+<td style="text-align: left;">Solve [s]</td>
+<td style="text-align: left;">iterations</td>
+<td style="text-align: left;">evaluations</td>
+<td style="text-align: left;">evaluations</td>
+<td style="text-align: left;">evaluations</td>
+<td style="text-align: left;">evaluations</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">14.9</td>
+<td style="text-align: left;">35.4</td>
+<td style="text-align: left;">58.3</td>
+<td style="text-align: left;">66.7</td>
+<td style="text-align: left;">169.8</td>
+<td style="text-align: left;">73.0</td>
+<td style="text-align: left;">286</td>
+<td style="text-align: left;">1098</td>
+<td style="text-align: left;">286</td>
+<td style="text-align: left;">1098</td>
+<td style="text-align: left;">292</td>
+</tr>
+</tbody>
+</table>
+<p><span id="tab:performance" label="tab:performance"></span></p>
+</div>
+<h1 class="unnumbered" id="methods">METHODS</h1>
+<p>The non-linear equations of motion for musculoskeletal-vehicle
+systems can be described by differential algebraic equations that are
+functions of the states <span class="math inline">\(\mathbf{y} \in
+\mathbb{R}^n\)</span>, controls <span
+class="math inline">\(\mathbf{r}\)</span>, and constant parameters <span
+class="math inline">\(\mathbf{p}\)</span>, in general. The implicit
+equations take this form: <span class="math display">\[\begin{aligned}
+  \mathbf{f}(\dot{\mathbf{y}}(t), \mathbf{y}(t), \mathbf{r}(t),
+\mathbf{p}) =
+  \mathbf{0} \in \mathbb{R}^n
+\end{aligned}\]</span> These equations can contain elements such as
+musculotendon force-velocity relationships, kinematic loops, friction
+and collision forces, etc. We write these equations as analytically
+differentiable functions. To map these to non-linear programming
+constraints we discretize the equations with backward Euler
+differentiation over a constant time step and code generate functions in
+C using opty <span class="citation" data-cites="Moore2018">(Moore and
+van den Bogert 2018)</span> that evaluate the constraints and Jacobian
+over all <span class="math inline">\(N\)</span> nodes while exploiting
+the high sparsity of the Jacobian. The symbolic Jacobian is calculated
+in forward mode applying the chain rule through all common
+sub-expressions which efficiently handles differentiating equations of
+motion with many mathematical operations. This results in cacheable
+computationally efficient numerical functions that evaluate the
+non-linear programming problem constraints and its Jacobian. Evaluation
+of the objective is generally a low computational cost, so this is only
+done in Python, but also with a symbolic-to-numeric conversion.</p>
+<p>To demonstrate our methods, we developed a bicycle-rider model that
+is the non-linear Carvallo-Whipple model of the vehicle with four
+additional rigid bodies representing the upper and lower arm body
+segments using SymBRiM <span class="citation"
+data-cites="Stienstra2023a">(Stienstra, Brockie, and Moore 2023)</span>.
+We include four lumped Hill-type muscle models representing the extensor
+and flexor groups for the elbow. The model has seven holonomic
+constraints and four nonholonomic constraints resulting in a
+10<sup>th</sup> order model with seven additional algebraic equations.
+This results in 17 equations with 2.8M floating point operations in the
+implicit symbolic equations of motion. After efficient Jacobian
+formulation and compiler pre-optimizations, this reduces to 10K and 69K
+operations for evaluating the constraints and Jacobian, respectively.
+This numerical evaluation time depends on the number of nodes, so
+proportional to <span class="math inline">\(N\times\)</span>79K. For
+<span class="math inline">\(N=\)</span> 10K we time the evaluation of
+these two functions with and without parallelization using OpenMP 4.5
+seeing a 4.6<span class="math inline">\(\times\)</span> and 3.1<span
+class="math inline">\(\times\)</span> speed up over 23 ms and 190 ms,
+respectively. Lastly, we define a minimal muscle excitation lane change
+tracking task, starting from zero speed up to a mean speed of 3 m/s over
+the fixed duration of 6 seconds, as an optimal control problem.</p>
+<h1 class="unnumbered" id="results-and-discussion">RESULTS AND
+DISCUSSION</h1>
+<p>Table <a href="#tab:performance" data-reference-type="ref"
+data-reference="tab:performance">[tab:performance]</a> shows timings for
+solving a 200 node lane change problem. Building the model and forming
+the OCP takes 185 seconds with most time spent compiling the generated
+functions with Clang. This is a fixed cost regardless of the size of
+<span class="math inline">\(N\)</span> and can be cached to disk and
+need not be built again unless the dynamics model changes. Ipopt solves
+the problem in 73 seconds. Fig. <a href="#fig:trajectories"
+data-reference-type="ref" data-reference="fig:trajectories">1</a> shows
+an example optimal solution.</p>
+<figure id="fig:trajectories">
+<img src="figures/arm-muscle-bicycle-excitation.png" />
+<figcaption>An optimal solution: 1) bicycle motion, 2) left/right arm
+biceps/triceps muscle excitations, 3) bicycle speed (solid) and
+propulsion torque (dashed), and 4) lateral displacement.</figcaption>
+</figure>
+<h1 class="unnumbered" id="conclusions">CONCLUSIONS</h1>
+<p>Our methods focus on maximizing the performance of evaluating the
+constraint and Jacobian numerical functions. The performance of these
+functions scales linearly with the number of collocation nodes and can
+be sped up multiplicatively by the number of compute cores available in
+the best-case scenario. When Ipopt needs to evaluate these functions
+thousands or millions of times, for example in a long-duration problem,
+the overall compute time can be greatly reduced.</p>
+<h1 class="unnumbered" id="acknowledgments">ACKNOWLEDGMENTS</h1>
+<p>P. Stahlecker contributed to opty; funds were from CZI.</p>
+<div id="refs" class="references csl-bib-body hanging-indent"
+role="list">
+<div id="ref-Dembia2020" class="csl-entry" role="listitem">
+Dembia, Christopher L., Nicholas A. Bianco, Antoine Falisse, Jennifer L.
+Hicks, and Scott L. Delp. 2020. <span>“<span>OpenSim Moco</span>:
+<span>Musculoskeletal</span> Optimal Control.”</span> <em>PLOS
+Computational Biology</em> 16 (12): e1008493. <a
+href="https://doi.org/10.1371/journal.pcbi.1008493">https://doi.org/10.1371/journal.pcbi.1008493</a>.
+</div>
+<div id="ref-Moore2018" class="csl-entry" role="listitem">
+Moore, Jason K., and Antonie van den Bogert. 2018. <span>“Opty:
+<span>Software</span> for Trajectory Optimization and Parameter
+Identification Using Direct Collocation.”</span> <em>JOSS</em> 3 (21):
+300. <a
+href="https://doi.org/10.21105/joss.00300">https://doi.org/10.21105/joss.00300</a>.
+</div>
+<div id="ref-Stienstra2023a" class="csl-entry" role="listitem">
+Stienstra, Timótheüs J., Samuel G. Brockie, and Jason K. Moore. 2023.
+<span>“<span>BRiM</span>: <span>A</span> Modular Bicycle-Rider Modeling
+Framework.”</span> In <em>Bicycle and <span>Motorcycle Dynamics</span>
+2023</em>. Delft, The Netherlands: TU Delft OPEN Publishing. <a
+href="https://doi.org/10.59490/6504c5a765e8118fc7b106c3">https://doi.org/10.59490/6504c5a765e8118fc7b106c3</a>.
+</div>
+<div id="ref-vandenBogert2011a" class="csl-entry" role="listitem">
+van den Bogert, Antonie J., Dimitra Blana, and Dieter Heinrich. 2011.
+<span>“Implicit Methods for Efficient Musculoskeletal Simulation and
+Optimal Control.”</span> <em>Procedia IUTAM</em>, <span>IUTAM
+Symposium</span> on <span>Human Body Dynamics</span>, 2 (January):
+297–316. <a
+href="https://doi.org/10.1016/j.piutam.2011.04.027">https://doi.org/10.1016/j.piutam.2011.04.027</a>.
+</div>
+</div>
+</body>
+</html>
